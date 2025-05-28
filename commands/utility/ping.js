@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, InteractionContextType, ApplicationIntegrationType } from "discord.js";
+import { SlashCommandBuilder, InteractionContextType, ApplicationIntegrationType, MessageFlags } from "discord.js";
 
 export const data = new SlashCommandBuilder()
     .setName('ping')
@@ -6,5 +6,8 @@ export const data = new SlashCommandBuilder()
     .setIntegrationTypes([ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall])
     .setContexts([InteractionContextType.Guild, InteractionContextType.PrivateChannel, InteractionContextType.BotDM]);
 export async function execute(interaction) {
-    await interaction.reply(`Pong!\n-# ${interaction.client.ws.ping}ms`);
+    return await interaction.reply({
+        content: `Pong! (${interaction.client.ws.ping}ms)`,
+        flags: [MessageFlags.Ephemeral]
+    });
 }
