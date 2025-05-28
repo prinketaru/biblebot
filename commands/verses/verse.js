@@ -2,7 +2,6 @@ import {
   SlashCommandBuilder,
   ApplicationIntegrationType,
   InteractionContextType,
-  PermissionsBitField,
   MessageFlags,
 } from "discord.js";
 import esvApiRequest from "../../helpers/esv_api_request.js";
@@ -22,8 +21,8 @@ export const data = new SlashCommandBuilder()
   ])
   .addStringOption((option) =>
     option
-      .setName("verse")
-      .setDescription("The verse to search for (e.g. John 3:16)")
+      .setName("reference")
+      .setDescription("The reference of the verse to search for (e.g. John 3:16)")
       .setRequired(true)
   )
   .addStringOption((option) =>
@@ -46,8 +45,8 @@ export async function execute(interaction) {
     // niv api
   } else {
     // esv api (default)
-    const verseQuery = interaction.options.getString("verse");
-    const data = await esvApiRequest(verseQuery);
+    const reference = interaction.options.getString("reference");
+    const data = await esvApiRequest(reference);
     // check if verse exists
     if (data.passages.length === 0) {
       return await interaction.reply({

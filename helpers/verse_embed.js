@@ -1,6 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 
-export default async function verseEmbed(verse, reference, translation) {
+export default async function verseEmbed(text, reference, translation) {
     let longtl = "";
     let iconURL = "";
 
@@ -14,7 +14,7 @@ export default async function verseEmbed(verse, reference, translation) {
     
 
     const embed = new EmbedBuilder()
-        .setDescription(verse)
+        .setDescription(text)
         .setColor("#824c22")
         .setTitle(reference)
         .setURL(`https://www.biblegateway.com/passage/?search=${encodeURIComponent(reference)}&version=${translation}`)

@@ -8,8 +8,8 @@ if (!esvApiKey) {
     throw new Error("ESV_API_KEY is not defined in the environment variables.");
 }
 
-export default async function esvApiRequest(verse) {
-    const url = `https://api.esv.org/v3/passage/text/?include-footnote-body=false&include-footnotes=false&include-passage-references=false&include-short-copyright=false&include-headings=false&q=${verse}`
+export default async function esvApiRequest(reference) {
+    const url = `https://api.esv.org/v3/passage/text/?include-footnote-body=false&include-footnotes=false&include-passage-references=false&include-short-copyright=false&include-headings=false&q=${reference}`
     const options = {
         method: "GET",
         headers: {
