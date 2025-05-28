@@ -1,13 +1,20 @@
-FROM node:latest
+# Use official Node.js LTS image
+FROM node:20-alpine
 
-# Create the bot's directory
-RUN mkdir -p /usr/src/bot
-WORKDIR /usr/src/bot
+# Set working directory
+WORKDIR /app
 
-COPY package.json /usr/src/bot
-RUN npm install
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-COPY . /usr/src/bot
+# Install dependencies
+RUN npm ci --omit=dev
 
-# Start the bot.
+# Copy the rest of the bot source code
+COPY . .
+
+# Set environment variable if needed (optional)
+# ENV DISCORD_TOKEN=your_token_here
+
+# Start the bot
 CMD ["node", "index.js"]
