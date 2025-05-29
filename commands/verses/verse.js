@@ -6,6 +6,8 @@ import {
 } from "discord.js";
 import esvApiRequest from "../../helpers/esv_api_request.js";
 import verseEmbed from "../../helpers/verse_embed.js";
+import bibliaGetVerse from "../../helpers/biblia/biblia_get_verse.js";
+import nltApiRequest from "../../helpers/nlt_api_request.js";
 
 export const data = new SlashCommandBuilder()
   .setName("verse")
@@ -22,14 +24,23 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("reference")
-      .setDescription("The reference of the verse to search for (e.g. John 3:16)")
+      .setDescription(
+        "The reference of the verse to search for (e.g. John 3:16)"
+      )
       .setRequired(true)
   )
   .addStringOption((option) =>
     option
       .setName("translation")
       .setDescription("The translation to use")
-      .addChoices({ name: "ESV", value: "ESV" })
+      .addChoices({ name: "English Standard Version (ESV)", value: "ESV" })
+      .addChoices({ name: "King James Version (KJV)", value: "KJV" })
+      .addChoices({ name: "American Standard Version (ASV)", value: "ASV" })
+      .addChoices({ name: "Darby Translation (DARBY)", value: "DARBY" })
+      .addChoices({
+        name: "The New Testament in Greek (Scrivener 1881)",
+        value: "SCRMORPH",
+      })
       .setRequired(false)
   );
 export async function execute(interaction) {
@@ -39,18 +50,37 @@ export async function execute(interaction) {
     translation = "ESV";
   }
 
-  if (translation === "KJV") {
-    // kjv api
-  } else if (translation === "NIV") {
-    // niv api
+  const reference = interaction.options.getString("reference");
+
+  if (
+    translation === "DARBY" ||
+    translation === "SCRMORPH" ||
+    translation === "ASV" ||
+    translation === "KJV"
+  ) {
+    bibliaGetVerse(reference, translation)
+      .then(async (data) => {
+        // create passage embed
+        const embed = await verseEmbed(data.text, data.reference, translation);
+
+        // send the embed
+        return await interaction.reply({
+          embeds: [embed],
+        });
+      })
+      .catch(async (error) => {
+        return await interaction.reply({
+          content: `No verse found for \`${reference}\`. Please check the reference and try again.`,
+          flags: [MessageFlags.Ephemeral],
+        });
+      });
   } else {
     // esv api (default)
-    const reference = interaction.options.getString("reference");
     const data = await esvApiRequest(reference);
     // check if verse exists
     if (data.passages.length === 0) {
       return await interaction.reply({
-        content: "Verse not found.",
+        content: `No verse found for \`${reference}\`. Please check the reference and try again.`,
         flags: [MessageFlags.Ephemeral],
       });
     }
