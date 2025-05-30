@@ -7,7 +7,6 @@ import {
 import esvApiRequest from "../../helpers/esv_api_request.js";
 import verseEmbed from "../../helpers/verse_embed.js";
 import bibliaGetVerse from "../../helpers/biblia/biblia_get_verse.js";
-import nltApiRequest from "../../helpers/nlt_api_request.js";
 
 export const data = new SlashCommandBuilder()
   .setName("verse")

@@ -1,7 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
+const { Client, Collection, Events, GatewayIntentBits, MessageFlags, ActivityType } = require('discord.js');
 require('dotenv').config();
+const schedule = require('node-schedule');
+const dailyVersesPath = path.join(__dirname, 'daily_verses.json');
+const dailyVersesData = JSON.parse(fs.readFileSync(dailyVersesPath, 'utf-8'));
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 
@@ -48,7 +51,32 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 client.once(Events.ClientReady, readyClient => {
+    readyClient.user.setActivity(dailyVersesData.current_verse, { type: ActivityType.Listening  });
+
+    schedule.scheduleJob({hour: 0, minute: 0, tz: 'America/New_York'}, () => {
+        pickNewVerseAndUpdateStatus(readyClient);
+    });
+
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-})
+});
+
+function pickNewVerseAndUpdateStatus(client) {
+    const verses = dailyVersesData.daily_bible_verses;
+
+    // Pick a random verse different from the current one
+    let newVerse;
+    do {
+        newVerse = verses[Math.floor(Math.random() * verses.length)];
+    } while (newVerse === dailyVersesData.current_verse);
+
+    // Update the JSON data and write to file
+    dailyVersesData.current_verse = newVerse;
+    fs.writeFileSync(dailyVersesPath, JSON.stringify(dailyVersesData, null, 2));
+
+    // Set bot status to the new verse
+    client.user.setActivity(newVerse, { type: ActivityType.Listening })
+        .then(() => console.log(`Status updated to: ${newVerse}`))
+        .catch(console.error);
+}
 
 client.login(process.env.TOKEN);
